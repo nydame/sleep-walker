@@ -6,14 +6,33 @@ const i18n = require("i18next");
 const sprintf = require("i18next-sprintf-postprocessor");
 
 // core functionality for fact skill
+
+const LaunchHandler = {
+  canHandle(handlerInput) {
+    const request = handlerInput.requestEnvelope.request;
+    return request.type === "LaunchRequest";
+  },
+  handle(handlerInput) {
+    const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+    return handlerInput.responseBuilder
+      .speak(
+        'Hi! I\'m Sleep Walker. I can help you with your bedtime routine.<break time="0.5s" />' +
+          requestAttributes.t("HELP_MESSAGE")
+      )
+      .reprompt(
+        'O.K. let\'s try again.<break time="0.5s" />' +
+          requestAttributes.t("HELP_REPROMPT")
+      )
+      .getResponse();
+  }
+};
 const GetNewFactHandler = {
   canHandle(handlerInput) {
     const request = handlerInput.requestEnvelope.request;
     // checks request type
     return (
-      request.type === "LaunchRequest" ||
-      (request.type === "IntentRequest" &&
-        request.intent.name === "GetNewFactIntent")
+      request.type === "IntentRequest" &&
+      request.intent.name === "GetNewFactIntent"
     );
   },
   handle(handlerInput) {
@@ -24,6 +43,8 @@ const GetNewFactHandler = {
     const randomFact = requestAttributes.t("FACTS");
     // concatenates a standard message with the random fact
     const speakOutput = requestAttributes.t("GET_FACT_MESSAGE") + randomFact;
+    // captures the last fact in case repetition is requested
+    this.attributes.lastSpeech = randomFact;
 
     return handlerInput.responseBuilder
       .speak(speakOutput)
@@ -149,6 +170,7 @@ const skillBuilder = Alexa.SkillBuilders.custom();
 
 exports.handler = skillBuilder
   .addRequestHandlers(
+    LaunchHandler,
     GetNewFactHandler,
     HelpHandler,
     ExitHandler,
