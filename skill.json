@@ -1,0 +1,36 @@
+{
+  "manifest": {
+    "publishingInformation": {
+      "locales": {
+        "en-US": {
+          "summary": "Get help winding down and getting ready for bed.",
+          "examplePhrases": [
+            "Alexa open sleep walker",
+            "Alexa ask sleep walker to get me ready for bed",
+            "Alexa tell sleep walker to help me get ready for bed"
+          ],
+          "keywords": [
+            "sleep",
+            "bedtime",
+            "routine",
+            "dream",
+            "unwind",
+            "nighttime"
+          ],
+          "name": "SleepWalker",
+          "description": "Ask for Sleep Walker, and start meeting your goals for getting enough sleep.\n\nSleep Walker will walk you through a series of simple actions that will get you ready for bed.\n\nWheter you use the built-in routine or create your own, a good night's sleep will help you feel rested and accomplish more the next day.\n\nTo start, just say \"Alexa, open Sleep Walker\" to get a menu of things to do, or say \"Alexa, tell Sleep Walker to get me ready for bed\" to go right to your bedtime routine.\n\nAt anytime, you can stop by saying \"Alexa, stop\""
+        }
+      },
+      "category": "ORGANIZERS_AND_ASSISTANTS"
+    },
+    "apis": {
+      "custom": {
+        "endpoint": {
+          "uri": "ask-custom-sleep-walker-default",
+          "sourceDir": "lambda/us-east-1_ask-custom-sleep-walker-default"
+        }
+      }
+    },
+    "manifestVersion": "1.0"
+  }
+}
