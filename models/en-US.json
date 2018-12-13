@@ -24,19 +24,20 @@
           "slots": [],
           "samples": [
             "a fact",
-            "a space fact",
+            "a sleep fact",
             "tell me a fact",
-            "tell me a space fact",
+            "tell me a sleep fact",
             "give me a fact",
-            "give me a space fact",
+            "give me a sleep fact",
             "tell me trivia",
-            "tell me a space trivia",
+            "tell me a sleep trivia",
             "give me trivia",
-            "give me a space trivia",
+            "give me a sleep trivia",
             "give me some information",
-            "give me some space information",
+            "give me some sleep information",
             "tell me something",
-            "give me something"
+            "tell me something about sleep",
+            "what do you know about sleep"
           ]
         },
         {
