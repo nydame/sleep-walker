@@ -1,13 +1,13 @@
 // Alexa Fact Skill - Sample for Beginners
 /* eslint no-use-before-define: 0 */
 // sets up dependencies
-const Alexa = require("ask-sdk-core");
+const Alexa = require("ask-sdk");
 const i18n = require("i18next");
 const sprintf = require("i18next-sprintf-postprocessor");
 
 // core functionality for fact skill
 
-const LaunchHandler = {
+const LaunchRequestHandler = {
   canHandle(handlerInput) {
     const request = handlerInput.requestEnvelope.request;
     return request.type === "LaunchRequest";
@@ -16,16 +16,35 @@ const LaunchHandler = {
     const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
     return handlerInput.responseBuilder
       .speak(
-        'Hi! I\'m Sleep Walker. I can help you with your bedtime routine.<break time="0.5s" />' +
+        "Hi! I'm Sleep Walker. I can help you with your bedtime routine." +
           requestAttributes.t("HELP_MESSAGE")
       )
-      .reprompt(
-        'O.K. let\'s try again.<break time="0.5s" />' +
-          requestAttributes.t("HELP_REPROMPT")
-      )
+      .reprompt("O.K. let's try again." + requestAttributes.t("HELP_REPROMPT"))
       .getResponse();
   }
 };
+
+const RepeatHandler = {
+  canHandle(handlerInput) {
+    const request = handlerInput.requestEnvelope.request;
+    return (
+      request.type === "IntentRequest" &&
+      request.intent.name === "AMAZON.RepeatIntent"
+    );
+  },
+  async handle(handlerInput) {
+    const attMan = handlerInput.attributesManager;
+    const requestAttributes = attMan.getRequestAttributes();
+    const attributes = (await attMan.getPersistentAttributes()) || {};
+    const speakOutput =
+      attributes.lastSpeech || requestAttributes.t("NOTHING_TO_REPEAT");
+    return handlerInput.responseBuilder
+      .speak(speakOutput)
+      .withSimpleCard(requestAttributes.t("SKILL_NAME"), speakOutput)
+      .getResponse();
+  }
+};
+
 const GetNewFactHandler = {
   canHandle(handlerInput) {
     const request = handlerInput.requestEnvelope.request;
@@ -35,8 +54,9 @@ const GetNewFactHandler = {
       request.intent.name === "GetNewFactIntent"
     );
   },
-  handle(handlerInput) {
-    const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+  async handle(handlerInput) {
+    const attMan = handlerInput.attributesManager;
+    const requestAttributes = attMan.getRequestAttributes();
     // gets a random fact by assigning an array to the variable
     // the random item from the array will be selected by the i18next library
     // the i18next library is set up in the Request Interceptor
@@ -44,12 +64,83 @@ const GetNewFactHandler = {
     // concatenates a standard message with the random fact
     const speakOutput = requestAttributes.t("GET_FACT_MESSAGE") + randomFact;
     // captures the last fact in case repetition is requested
-    this.attributes.lastSpeech = randomFact;
+    const attributes = (await attMan.getPersistentAttributes()) || {};
+    attributes.lastSpeech = randomFact;
+    attMan.setPersistentAttributes(attributes);
+    await attMan.savePersistentAttributes();
 
     return handlerInput.responseBuilder
       .speak(speakOutput)
       .withSimpleCard(requestAttributes.t("SKILL_NAME"), randomFact)
       .getResponse();
+  }
+};
+
+const StartRoutineHandler = {
+  canHandle(handlerInput) {
+    const request = handlerInput.requestEnvelope.request;
+    return (
+      request.type === "IntentRequest" &&
+      request.intent.name === "StartRoutineIntent"
+    );
+  },
+  async handle(handlerInput) {
+    const attMan = handlerInput.attributesManager;
+    const requestAttributes = attMan.getRequestAttributes();
+    // save previous step number as zero
+    const attributes = (await attMan.getPersistentAttributes()) || {};
+    attributes.lastStep = 0;
+    attMan.setPersistentAttributes(attributes);
+    await attMan.savePersistentAttributes();
+    // fetch step content (based on calculation of current step number); save
+    const step = await requestAttributes.t("ROUTINES");
+    attributes.lastSpeech = step;
+    attMan.setPersistentAttributes(attributes);
+    await attMan.savePersistentAttributes();
+
+    return handlerInput.responseBuilder
+      .speak(
+        requestAttributes.t("START_ROUTINE_PREFIX") +
+          step +
+          requestAttributes.t("ROUTINE_SUFFIX")
+      )
+      .getResponse();
+  }
+};
+
+const ContinueRoutineHandler = {
+  canHandle(handlerInput) {
+    const request = handlerInput.requestEnvelope.request;
+    return (
+      request.type === "IntentRequest" &&
+      request.intent.name === "ContinueRoutineIntent"
+    );
+  },
+  async handle(handlerInput) {
+    // const attMan = handlerInput.attributesManager;
+    // const requestAttributes = attMan.getRequestAttributes();
+    // // save step number
+    // const attributes = (await attMan.getPersistentAttributes()) || {};
+    // attributes.lastStep =
+    //   Object.keys(attributes).indexOf("lastStep") >= 0
+    //     ? parseInt(attributes.lastStep) + 1
+    //     : 0;
+    // attMan.setPersistentAttributes(attributes);
+    // await attMan.savePersistentAttributes();
+    // // fetch step content (based on calculation of current step number); save
+    // const step = requestAttributes.t("ROUTINES");
+    // attributes.lastSpeech = step;
+    // attMan.setPersistentAttributes(attributes);
+    // await attMan.savePersistentAttributes();
+    //
+    // return handlerInput.responseBuilder
+    //   .speak(
+    //     requestAttributes.t("START_ROUTINE_PREFIX") +
+    //       step +
+    //       requestAttributes.t("ROUTINE_SUFFIX")
+    //   )
+    //   .getResponse();
+    return handlerInput.responseBuilder.speak("testing again").getResponse();
   }
 };
 
@@ -137,6 +228,9 @@ const ErrorHandler = {
   }
 };
 
+const getPersistentAttributes = async handlerInput =>
+  await handlerInput.attributesManager.getPersistentAttributes();
+
 const LocalizationInterceptor = {
   process(handlerInput) {
     const localizationClient = i18n.use(sprintf).init({
@@ -155,6 +249,12 @@ const LocalizationInterceptor = {
         sprintf: values
       });
       if (Array.isArray(value)) {
+        if (value[0] === "routines") {
+          getPersistentAttributes(handlerInput).then(persistentAttributes => {
+            const lastStepNum = parseInt(persistentAttributes.lastStep);
+            return value[Math.min(lastStepNum++, value.length - 1)]; // max step = length - 1
+          });
+        }
         return value[Math.floor(Math.random() * value.length)];
       }
       return value;
@@ -166,12 +266,15 @@ const LocalizationInterceptor = {
   }
 };
 
-const skillBuilder = Alexa.SkillBuilders.custom();
+const skillBuilder = Alexa.SkillBuilders.standard();
 
 exports.handler = skillBuilder
   .addRequestHandlers(
-    LaunchHandler,
+    LaunchRequestHandler,
+    RepeatHandler,
     GetNewFactHandler,
+    StartRoutineHandler,
+    ContinueRoutineHandler,
     HelpHandler,
     ExitHandler,
     FallbackHandler,
@@ -179,6 +282,8 @@ exports.handler = skillBuilder
   )
   .addRequestInterceptors(LocalizationInterceptor)
   .addErrorHandlers(ErrorHandler)
+  .withTableName("sleepwalker-data")
+  .withAutoCreateTable(true)
   .lambda();
 
 // translations
@@ -221,7 +326,29 @@ const enData = {
     FALLBACK_REPROMPT: "What can I help you with?",
     ERROR_MESSAGE: "Sorry, an error occurred.",
     STOP_MESSAGE: "Goodbye!",
-    FACTS: ["I'm asleep most of the time"]
+    FACTS: ["I'm asleep most of the time"],
+    NOTHING_TO_REPEAT: "Sorry, there is nothing to repeat.",
+    START_ROUTINE_PREFIX: "O.K., here we go. ",
+    CONTINUE_ROUTINE_PREFIX: [
+      "O.K. ",
+      "Alright. ",
+      "Great. ",
+      "Excellent. ",
+      "You're doing great. ",
+      "You rock. ",
+      "You are crushing this. ",
+      "Way to get ready for bed. ",
+      "You are unstoppable. ",
+      "Awesome. ",
+      "Like a boss. "
+    ],
+    ROUTINE_SUFFIX:
+      " Let me know when you're done by saying ready or next step.",
+    ROUTINES: [
+      "routines",
+      "The very first step is to simply stop working or eating. If you are enjoying a warm beverage, that's fine.",
+      "Step two."
+    ]
   }
 };
 

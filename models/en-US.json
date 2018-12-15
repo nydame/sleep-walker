@@ -43,6 +43,27 @@
         {
           "name": "AMAZON.NavigateHomeIntent",
           "samples": []
+        },
+        { "name": "AMAZON.RepeatIntent", "samples": [] },
+        {
+          "name": "StartRoutineIntent",
+          "samples": [
+            "help me get ready for bed",
+            "start my routine",
+            "get me ready for bed",
+            "start getting ready for bed",
+            "get ready for bed"
+          ]
+        },
+        {
+          "name": "ContinueRoutineIntent",
+          "samples": [
+            "I'm ready",
+            "next step",
+            "O.K. ready",
+            "O.K. next",
+            "continue"
+          ]
         }
       ]
     }
