@@ -61,7 +61,7 @@ const GetNewFactHandler = {
     // the random item from the array will be selected by the i18next library
     // the i18next library is set up in the Request Interceptor
     const randomFact = requestAttributes.t("FACTS");
-    // concatenates a standard message with the random fact
+    // // concatenates a standard message with the random fact
     const speakOutput = requestAttributes.t("GET_FACT_MESSAGE") + randomFact;
     // captures the last fact in case repetition is requested
     const attributes = (await attMan.getPersistentAttributes()) || {};
@@ -283,9 +283,6 @@ const LocalizationInterceptor = {
         sprintf: values
       });
       if (Array.isArray(value)) {
-        if (value[0] === "routine") {
-          return value[1];
-        }
         return value[Math.floor(Math.random() * value.length)];
       }
       return value;
@@ -361,18 +358,18 @@ const enData = {
     STOP_MESSAGE: "Goodbye!",
     FACTS: [
       "I'm asleep most of the time.",
-      "It's more dangerous to sleep while drowsy than to do so while intoxicated.",
+      "It's even more dangerous to sleep while drowsy than to do so while intoxicated.",
       "Sleep deprivation leads to weight gain by upsetting the regulation of hormones that control hunger.",
       "The tendency to sleep walk runs in families.",
       "12 percent of people dream exclusively in black and white.",
-      "The record for the longest period a person has gone without sleep is 11 days. ",
+      "The record for the longest period a person has gone without sleep is 11 days.",
       "You will spend a third of your life asleep, but your cat will spend 2 thirds of its life sleeping.",
       "Deaf people have been known to use sign language in their sleep.",
       "Birds and aquatic mammals can be asleep in 1 half of their brain while the other half stays alert.",
       "New parents lose an average of 44 days of sleep a year, thanks to their little bundles of joy.",
       "Many animals, including humans, can sleep with their eyes open.",
       "Sleep cleanses your brain of toxins. It's a really, really good idea to get enough sleep. Sorry, am I ranting again?",
-      "Everyone has dreams. Most people forget 90% of them, and some people forget almost all of them.",
+      "Everyone has dreams. Most people forget 90 percent of them, and some people forget almost all of them.",
       "The optimum amount of sleep for adults seems to be about 7 hours. People who get significantly more or less sleep than that do not live as long as those who do.",
       "Yawning is contagious. Actually, I feel one coming on right now.",
       "Your first yawn was probably taken before birth, in your mother's womb."
