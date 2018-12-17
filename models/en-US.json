@@ -40,29 +40,22 @@
             "what do you know about sleep"
           ]
         },
-        {
-          "name": "AMAZON.NavigateHomeIntent",
-          "samples": []
-        },
+        { "name": "AMAZON.NextIntent", "samples": [] },
+        { "name": "AMAZON.ResumeIntent", "samples": [] },
         { "name": "AMAZON.RepeatIntent", "samples": [] },
         {
           "name": "StartRoutineIntent",
-          "samples": [
-            "help me get ready for bed",
-            "start my routine",
-            "get me ready for bed",
-            "start getting ready for bed",
-            "get ready for bed"
-          ]
+          "samples": ["start my routine", "ready to start"]
         },
         {
           "name": "ContinueRoutineIntent",
           "samples": [
+            "continue",
             "I'm ready",
             "next step",
             "O.K. ready",
             "O.K. next",
-            "continue"
+            "O.K. I'm ready"
           ]
         }
       ]

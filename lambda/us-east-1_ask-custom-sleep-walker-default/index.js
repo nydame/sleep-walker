@@ -171,9 +171,10 @@ const ContinueRoutineHandler = {
     attMan.setPersistentAttributes(attributes);
     await attMan.savePersistentAttributes();
 
-    return handlerInput.responseBuilder
-      .speak(requestAttributes.t("CONTINUE_ROUTINE_PREFIX") + step)
-      .getResponse();
+    let speakOutput = requestAttributes.t("CONTINUE_ROUTINE_PREFIX") + step;
+    if (num >= 10) speakOutput += requestAttributes.t("END_ROUTINE_SUFFIX");
+
+    return handlerInput.responseBuilder.speak(speakOutput).getResponse();
   }
 };
 
@@ -351,7 +352,7 @@ const enData = {
       "Hi! I'm Sleep Walker, and I can help you get ready for bed. ",
     GET_FACT_MESSAGE: "Did you know? ",
     HELP_MESSAGE:
-      "You can say help me get ready for bed, or, tell me a sleep fact. To exit you can say exit... What can I help you with?",
+      "You can say 'start my routine', or, tell me a sleep fact. To exit you can say exit... What can I help you with?",
     HELP_REPROMPT: "What can I help you with?",
     FALLBACK_MESSAGE:
       "Sleep Walker can't help you with that.  It can help you follow a bedtime routine, or tell you cool facts about sleep. What can I help you with?",
@@ -376,14 +377,18 @@ const enData = {
     ],
     ROUTINE_STEP_START:
       "The very first step is to simply stop working or eating. If you are enjoying a warm beverage, that's fine.",
-    ROUTINE_STEP_TWO: "Step 2.",
-    ROUTINE_STEP_THREE: "Step 3.",
-    ROUTINE_STEP_FOUR: "Step 4.",
-    ROUTINE_STEP_FIVE: "Step 5.",
-    ROUTINE_STEP_SIX: "Step 6.",
-    ROUTINE_STEP_SEVEN: "Step 7.",
-    ROUTINE_STEP_EIGHT: "Step 8.",
-    ROUTINE_STEP_NINE: "Step 9.",
+    ROUTINE_STEP_TWO:
+      "Step 2. List up to 3 well-defined tasks that you want to accomplish tomorrow. You can use your phone or a piece or paper, or even just make a mental note.",
+    ROUTINE_STEP_THREE:
+      "Step 3. Put out your clothes for tomorrow. Choose wardrobe pieces that are in harmony with your task list. Confidently envision yourself in those clothes and successfully accomplishing your goals.",
+    ROUTINE_STEP_FOUR:
+      "Step 4. Dim the lights in your sleeping area and turn off all electronic screens there, then move to the bathroom.",
+    ROUTINE_STEP_FIVE: "Step 5. Floss your teeth.",
+    ROUTINE_STEP_SIX: "Step 6. Brush your teeth for 2 minutes.",
+    ROUTINE_STEP_SEVEN: "Step 7. Do your night time facial routine.",
+    ROUTINE_STEP_EIGHT: "Step 8. Swish mouthwash in your mouth for 30 seconds.",
+    ROUTINE_STEP_NINE:
+      "Step 9. Return to your sleeping area and do a meditation or say a prayer.",
     ROUTINE_STEP_END:
       "This is the last step. You are feeling more relaxed and sleepy, and ready to go to bed. Change into your pajamas. Turn off the lights so it's nice and dark. Get under the covers.",
     CONTINUE_ROUTINE_SUFFIX:
