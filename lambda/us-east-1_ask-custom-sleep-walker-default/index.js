@@ -16,7 +16,7 @@ const LaunchRequestHandler = {
     const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
     return handlerInput.responseBuilder
       .speak(
-        "Hi! I'm Sleep Walker. I can help you with your bedtime routine." +
+        requestAttributes.t("LAUNCH_MESSAGE") +
           requestAttributes.t("HELP_MESSAGE")
       )
       .reprompt("O.K. let's try again." + requestAttributes.t("HELP_REPROMPT"))
@@ -87,13 +87,13 @@ const StartRoutineHandler = {
   async handle(handlerInput) {
     const attMan = handlerInput.attributesManager;
     const requestAttributes = attMan.getRequestAttributes();
-    // save previous step number as zero
+    // save step number
     const attributes = (await attMan.getPersistentAttributes()) || {};
-    attributes.lastStep = 0;
+    attributes.lastStep = 1;
     attMan.setPersistentAttributes(attributes);
     await attMan.savePersistentAttributes();
-    // fetch step content (based on calculation of current step number); save
-    const step = await requestAttributes.t("ROUTINES");
+    // fetch step 1 content (based on calculation of current step number); save
+    const step = requestAttributes.t("ROUTINE_STEP_START");
     attributes.lastSpeech = step;
     attMan.setPersistentAttributes(attributes);
     await attMan.savePersistentAttributes();
@@ -102,7 +102,7 @@ const StartRoutineHandler = {
       .speak(
         requestAttributes.t("START_ROUTINE_PREFIX") +
           step +
-          requestAttributes.t("ROUTINE_SUFFIX")
+          requestAttributes.t("CONTINUE_ROUTINE_SUFFIX")
       )
       .getResponse();
   }
@@ -113,34 +113,67 @@ const ContinueRoutineHandler = {
     const request = handlerInput.requestEnvelope.request;
     return (
       request.type === "IntentRequest" &&
-      request.intent.name === "ContinueRoutineIntent"
+      (request.intent.name === "ContinueRoutineIntent" ||
+        request.intent.name === "AMAZON.NextIntent" ||
+        request.intent.name === "AMAZON.ResumeIntent")
     );
   },
   async handle(handlerInput) {
-    // const attMan = handlerInput.attributesManager;
-    // const requestAttributes = attMan.getRequestAttributes();
-    // // save step number
-    // const attributes = (await attMan.getPersistentAttributes()) || {};
-    // attributes.lastStep =
-    //   Object.keys(attributes).indexOf("lastStep") >= 0
-    //     ? parseInt(attributes.lastStep) + 1
-    //     : 0;
-    // attMan.setPersistentAttributes(attributes);
-    // await attMan.savePersistentAttributes();
-    // // fetch step content (based on calculation of current step number); save
-    // const step = requestAttributes.t("ROUTINES");
-    // attributes.lastSpeech = step;
-    // attMan.setPersistentAttributes(attributes);
-    // await attMan.savePersistentAttributes();
-    //
-    // return handlerInput.responseBuilder
-    //   .speak(
-    //     requestAttributes.t("START_ROUTINE_PREFIX") +
-    //       step +
-    //       requestAttributes.t("ROUTINE_SUFFIX")
-    //   )
-    //   .getResponse();
-    return handlerInput.responseBuilder.speak("testing again").getResponse();
+    const attMan = handlerInput.attributesManager;
+    const requestAttributes = attMan.getRequestAttributes();
+    // save step number
+    const attributes = (await attMan.getPersistentAttributes()) || {};
+    const num =
+      Object.keys(attributes).indexOf("lastStep") >= 0
+        ? attributes.lastStep + 1
+        : 1;
+    attributes.lastStep = num;
+    attMan.setPersistentAttributes(attributes);
+    await attMan.savePersistentAttributes();
+    // initialize step content
+    let step = "";
+    // update step content based on current step number; save
+    switch (attributes.lastStep) {
+      case 1:
+        step = requestAttributes.t("ROUTINE_STEP_START");
+        break;
+      case 2:
+        step = requestAttributes.t("ROUTINE_STEP_TWO");
+        break;
+      case 3:
+        step = requestAttributes.t("ROUTINE_STEP_THREE");
+        break;
+      case 4:
+        step = requestAttributes.t("ROUTINE_STEP_FOUR");
+        break;
+      case 5:
+        step = requestAttributes.t("ROUTINE_STEP_FIVE");
+        break;
+      case 6:
+        step = requestAttributes.t("ROUTINE_STEP_SIX");
+        break;
+      case 7:
+        step = requestAttributes.t("ROUTINE_STEP_SEVEN");
+        break;
+      case 8:
+        step = requestAttributes.t("ROUTINE_STEP_EIGHT");
+        break;
+      case 9:
+        step = requestAttributes.t("ROUTINE_STEP_NINE");
+        break;
+      case 10:
+        step = requestAttributes.t("ROUTINE_STEP_END");
+        break;
+      default:
+        step = requestAttributes.t("ROUTINE_STEP_END");
+    }
+    attributes.lastSpeech = step;
+    attMan.setPersistentAttributes(attributes);
+    await attMan.savePersistentAttributes();
+
+    return handlerInput.responseBuilder
+      .speak(requestAttributes.t("CONTINUE_ROUTINE_PREFIX") + step)
+      .getResponse();
   }
 };
 
@@ -249,11 +282,8 @@ const LocalizationInterceptor = {
         sprintf: values
       });
       if (Array.isArray(value)) {
-        if (value[0] === "routines") {
-          getPersistentAttributes(handlerInput).then(persistentAttributes => {
-            const lastStepNum = parseInt(persistentAttributes.lastStep);
-            return value[Math.min(lastStepNum++, value.length - 1)]; // max step = length - 1
-          });
+        if (value[0] === "routine") {
+          return value[1];
         }
         return value[Math.floor(Math.random() * value.length)];
       }
@@ -317,6 +347,8 @@ exports.handler = skillBuilder
 const enData = {
   translation: {
     SKILL_NAME: "Sleep Walker",
+    LAUNCH_MESSAGE:
+      "Hi! I'm Sleep Walker, and I can help you get ready for bed. ",
     GET_FACT_MESSAGE: "Did you know? ",
     HELP_MESSAGE:
       "You can say help me get ready for bed, or, tell me a sleep fact. To exit you can say exit... What can I help you with?",
@@ -342,13 +374,21 @@ const enData = {
       "Awesome. ",
       "Like a boss. "
     ],
-    ROUTINE_SUFFIX:
-      " Let me know when you're done by saying ready or next step.",
-    ROUTINES: [
-      "routines",
+    ROUTINE_STEP_START:
       "The very first step is to simply stop working or eating. If you are enjoying a warm beverage, that's fine.",
-      "Step two."
-    ]
+    ROUTINE_STEP_TWO: "Step 2.",
+    ROUTINE_STEP_THREE: "Step 3.",
+    ROUTINE_STEP_FOUR: "Step 4.",
+    ROUTINE_STEP_FIVE: "Step 5.",
+    ROUTINE_STEP_SIX: "Step 6.",
+    ROUTINE_STEP_SEVEN: "Step 7.",
+    ROUTINE_STEP_EIGHT: "Step 8.",
+    ROUTINE_STEP_NINE: "Step 9.",
+    ROUTINE_STEP_END:
+      "This is the last step. You are feeling more relaxed and sleepy, and ready to go to bed. Change into your pajamas. Turn off the lights so it's nice and dark. Get under the covers.",
+    CONTINUE_ROUTINE_SUFFIX:
+      " Let me know when you're done by saying continue or I'm ready.",
+    END_ROUTINE_SUFFIX: " Goodnight. Sleep well."
   }
 };
 
