@@ -3,7 +3,10 @@
 // sets up dependencies
 const Alexa = require("ask-sdk");
 const i18n = require("i18next");
+// connect to Dashbot
 const sprintf = require("i18next-sprintf-postprocessor");
+const dashbotAPIKey = "NcGfI7hRTiZLT67pPcghbdx5HzT8LHqEGLMes75L";
+const dashbot = require("dashbot")(dashbotAPIKey).alexa;
 
 // core functionality for fact skill
 
@@ -296,23 +299,25 @@ const LocalizationInterceptor = {
 
 const skillBuilder = Alexa.SkillBuilders.standard();
 
-exports.handler = skillBuilder
-  .addRequestHandlers(
-    LaunchRequestHandler,
-    RepeatHandler,
-    GetNewFactHandler,
-    StartRoutineHandler,
-    ContinueRoutineHandler,
-    HelpHandler,
-    ExitHandler,
-    FallbackHandler,
-    SessionEndedRequestHandler
-  )
-  .addRequestInterceptors(LocalizationInterceptor)
-  .addErrorHandlers(ErrorHandler)
-  .withTableName("sleepwalker-data")
-  .withAutoCreateTable(true)
-  .lambda();
+exports.handler = dashbot.handler(
+  skillBuilder
+    .addRequestHandlers(
+      LaunchRequestHandler,
+      RepeatHandler,
+      GetNewFactHandler,
+      StartRoutineHandler,
+      ContinueRoutineHandler,
+      HelpHandler,
+      ExitHandler,
+      FallbackHandler,
+      SessionEndedRequestHandler
+    )
+    .addRequestInterceptors(LocalizationInterceptor)
+    .addErrorHandlers(ErrorHandler)
+    .withTableName("sleepwalker-data")
+    .withAutoCreateTable(true)
+    .lambda()
+);
 
 // translations
 // const deData = {

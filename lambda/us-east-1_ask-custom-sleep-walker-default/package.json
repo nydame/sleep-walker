@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "ask-sdk": "^2.3.0",
+    "dashbot": "^10.2.1",
     "i18next": "^11.8.0",
     "i18next-sprintf-postprocessor": "^0.2.2"
   }
