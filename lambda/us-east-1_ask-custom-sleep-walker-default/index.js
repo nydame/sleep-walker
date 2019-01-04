@@ -15,8 +15,14 @@ const LaunchRequestHandler = {
     const request = handlerInput.requestEnvelope.request;
     return request.type === "LaunchRequest";
   },
-  handle(handlerInput) {
-    const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+  async handle(handlerInput) {
+    const attMan = handlerInput.attributesManager;
+    const requestAttributes = attMan.getRequestAttributes();
+    // capture help message in case repetition is requested
+    const attributes = (await attMan.getPersistentAttributes()) || {};
+    attributes.lastSpeech = requestAttributes.t("HELP_MESSAGE");
+    attMan.setPersistentAttributes(attributes);
+    await attMan.savePersistentAttributes();
     return handlerInput.responseBuilder
       .speak(
         requestAttributes.t("LAUNCH_MESSAGE") +
@@ -354,7 +360,7 @@ const enData = {
       "Hi! I'm Sleep Walker, and I can help you get ready for bed. ",
     GET_FACT_MESSAGE: "Did you know? ",
     HELP_MESSAGE:
-      "You can say 'start my routine', or, tell me a sleep fact. To exit you can say exit... What can I help you with?",
+      "You can say 'tell sleep walker to start my routine' to start a bed time routine. Say 'tell sleep walker to continue' to go on to the next step or say 'repeat that' to hear the current step again. You can also say 'ask sleep walker for a sleep fact'. What would you like to do?",
     HELP_REPROMPT: "What can I help you with?",
     FALLBACK_MESSAGE:
       "Sleep Walker can't help you with that.  It can help you follow a bedtime routine, or tell you cool facts about sleep. What can I help you with?",
