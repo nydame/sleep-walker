@@ -1,2 +1,3 @@
-#  An Alexa Trivia Skill (So far for US English only 🇺🇸  )
+# An Alexa Trivia Skill 
+In development. (So far only available in US English 🇺🇸  )
 
