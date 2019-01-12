@@ -28,6 +28,11 @@ const LaunchRequestHandler = {
         requestAttributes.t("LAUNCH_MESSAGE") +
           requestAttributes.t("HELP_MESSAGE")
       )
+      .withSimpleCard(
+        requestAttributes.t("SKILL_NAME"),
+        requestAttributes.t("LAUNCH_MESSAGE") +
+          requestAttributes.t("HELP_MESSAGE")
+      )
       .reprompt("O.K. let's try again." + requestAttributes.t("HELP_REPROMPT"))
       .getResponse();
   }
@@ -113,6 +118,10 @@ const StartRoutineHandler = {
           step +
           requestAttributes.t("CONTINUE_ROUTINE_SUFFIX")
       )
+      .withSimpleCard(
+        requestAttributes.t("SKILL_NAME"),
+        step + requestAttributes.t("CONTINUE_ROUTINE_SUFFIX")
+      )
       .getResponse();
   }
 };
@@ -183,7 +192,10 @@ const ContinueRoutineHandler = {
     let speakOutput = requestAttributes.t("CONTINUE_ROUTINE_PREFIX") + step;
     if (num >= 10) speakOutput += requestAttributes.t("END_ROUTINE_SUFFIX");
 
-    return handlerInput.responseBuilder.speak(speakOutput).getResponse();
+    return handlerInput.responseBuilder
+      .speak(speakOutput)
+      .withSimpleCard(requestAttributes.t("SKILL_NAME"), speakOutput)
+      .getResponse();
   }
 };
 
@@ -200,6 +212,10 @@ const HelpHandler = {
     return handlerInput.responseBuilder
       .speak(requestAttributes.t("HELP_MESSAGE"))
       .reprompt(requestAttributes.t("HELP_REPROMPT"))
+      .withSimpleCard(
+        requestAttributes.t("SKILL_NAME"),
+        requestAttributes.t("HELP_MESSAGE")
+      )
       .getResponse();
   }
 };
@@ -220,6 +236,10 @@ const FallbackHandler = {
     return handlerInput.responseBuilder
       .speak(requestAttributes.t("FALLBACK_MESSAGE"))
       .reprompt(requestAttributes.t("FALLBACK_REPROMPT"))
+      .withSimpleCard(
+        requestAttributes.t("SKILL_NAME"),
+        requestAttributes.t("FALLBACK_MESSAGE")
+      )
       .getResponse();
   }
 };
@@ -267,6 +287,10 @@ const ErrorHandler = {
     return handlerInput.responseBuilder
       .speak(requestAttributes.t("ERROR_MESSAGE"))
       .reprompt(requestAttributes.t("ERROR_MESSAGE"))
+      .withSimpleCard(
+        requestAttributes.t("SKILL_NAME"),
+        requestAttributes.t("ERROR_MESSAGE")
+      )
       .getResponse();
   }
 };
