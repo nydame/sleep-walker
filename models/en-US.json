@@ -42,15 +42,26 @@
         },
         { "name": "AMAZON.NextIntent", "samples": [] },
         { "name": "AMAZON.ResumeIntent", "samples": [] },
-        { "name": "AMAZON.RepeatIntent", "samples": [] },
+        {
+          "name": "AMAZON.RepeatIntent",
+          "samples": ["repeat that", "say that again"]
+        },
         {
           "name": "StartRoutineIntent",
-          "samples": ["start my routine", "ready to start"]
+          "samples": [
+            "start my routine",
+            "ready to start",
+            "get started",
+            "get going",
+            "get started",
+            "let's go"
+          ]
         },
         {
           "name": "ContinueRoutineIntent",
           "samples": [
             "continue",
+            "keep going",
             "I'm ready",
             "next step",
             "O.K. ready",
